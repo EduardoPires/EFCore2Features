@@ -5,6 +5,7 @@ using Bogus.DataSets;
 using Bogus.Extensions.Brazil;
 using Data;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Tests
@@ -63,6 +64,35 @@ namespace Tests
 
             Assert.NotNull(cliente);
             Assert.True(cliente.EhValido());
+        }
+
+        [Fact(DisplayName = "Atualizar CPF Cliente")]
+        [Trait("Category", "Testes de Cliente")]
+        public void Cliente_AtualizarCPFCliente_DeveRetornarNovoCPF()
+        {
+            Cliente cliente;
+            using (var db = new EFCore2FeaturesContext())
+            {
+                cliente = db.Clientes.Add(GerarClienteValido()).Entity;
+                db.SaveChanges();
+            }
+
+            Cliente clienteAlterado;
+            var novoCpf = new CPF("44961624403", DateTime.Now.AddYears(-18));
+
+            // Simulando novo request (e evitando o problema de tracking)
+            using (var db = new EFCore2FeaturesContext())
+            {
+                cliente.AtribuirCpf(novoCpf.Numero, novoCpf.DataEmissao);
+                db.Clientes.Update(cliente);
+                db.SaveChanges();
+
+                clienteAlterado = db.Clientes.Find(cliente.Id);
+            }
+
+            Assert.True(clienteAlterado.EhValido());
+            Assert.Equal(novoCpf.Numero, clienteAlterado.CPF.Numero);
+            Assert.Equal(novoCpf.DataEmissao, clienteAlterado.CPF.DataEmissao);
         }
 
         private static Cliente GerarClienteValido()

@@ -27,7 +27,7 @@ namespace Domain
         // Para o EF
         protected Cliente() { }
 
-        private bool AtribuirCpf(string cpfNumero, DateTime cpfDataEmissao)
+        public bool AtribuirCpf(string cpfNumero, DateTime cpfDataEmissao)
         {
             var cpf = new CPF(cpfNumero, cpfDataEmissao);
             if (!cpf.Validar()) return false;
@@ -36,7 +36,7 @@ namespace Domain
             return true;
         }
 
-        private bool AtribuirEmail(string enderecoEmail)
+        public bool AtribuirEmail(string enderecoEmail)
         {
             var email = new Email(enderecoEmail);
             if (!email.Validar()) return false;
